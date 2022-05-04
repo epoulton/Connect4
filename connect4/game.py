@@ -17,14 +17,14 @@ class Game:
 
     def __init__(self, agents, board_size=(6, 7)):
         # User-called method. Validate arguments.
-        if not (isinstance(agents, list) or isinstance(agents, tuple)):
+        if not (isinstance(agents, (list, tuple))):
             raise TypeError('Unsupported type for argument "agents". Argument must be of type "List" or "Tuple".')
         if len(agents) < 2:
             raise ValueError('Argument "agents" must be of at least length 2.')
         for element in agents:
             if not isinstance(element, agents_module.Agent):
                 raise TypeError('Unsupported element type in argument "agents". Elements must be of type "Agent".')
-        if not (isinstance(board_size, list) or isinstance(board_size, tuple)):
+        if not (isinstance(board_size, (list, tuple))):
             raise TypeError('Unsupported type for argument "board_size". Argument must be of type "List" or "Tuple".')
         if not len(board_size) == 2:
             raise ValueError('Argument "board_size" must be of length 2.')
@@ -51,14 +51,11 @@ class Game:
             if action.action is not Actions.PLACE:
                 raise ValueError('In Connect4, only the PLACE action is permitted.')
             if not isinstance(action.place_column, int):
-                raise TypeError(
-                    'Unsupported return type from method Agent.select_action(). Return must be of type "int".'
-                )
-            if action.place_column < 1 or action.place_column > self._board_size[1]:
-                raise ValueError(
-                    f'Returned value from Agent.select_action() must lie within the closed interval [0, '
-                    f'{self._board_size[1]}].'
-                )
+                raise TypeError('Unsupported return type from method Agent.select_action(). Return must be of type '
+                                '"int".')
+            if not (1 <= action.place_column <= self._board_size[1]):
+                raise ValueError('Returned value from Agent.select_action() must lie within the closed interval [0, '
+                                 f'{self._board_size[1]}].')
 
             # In the single action game, this is fine. In a multi-action game, this will need to be more generic.
             # Any specific invalid actions (dependent on state) will be caught by the state.
@@ -92,9 +89,7 @@ class State:
     """
 
     def __init__(self, external_tokens, board_size):
-        self._token_map = bidict.bidict(
-            {token: value for token, value in zip(external_tokens, range(len(external_tokens)))}
-        )
+        self._token_map = bidict.bidict({token: value for value, token in enumerate(external_tokens)})
         self._n_rows, self._n_columns = board_size
 
         self._board = [None] * self._n_rows * self._n_columns
@@ -143,28 +138,27 @@ class State:
         # Horizontal lines: --
         for row in range(self._n_rows):
             for column in range(self._n_columns - 3):
-                yield self._board[row * self._n_columns + column: row * self._n_columns + column + 4]
+                yield self._board[row * self._n_columns + column : row * self._n_columns + column + 4]
 
         # Vertical lines: |
         for row in range(self._n_rows - 3):
             for column in range(self._n_columns):
-                yield self._board[
-                      row * self._n_columns + column: (row + 4) * self._n_columns + column: self._n_columns
-                      ]
+                yield self._board[row * self._n_columns + column
+                                  : (row + 4) * self._n_columns + column: self._n_columns]
 
         # Diagonal lines: \
         for row in range(self._n_rows - 3):
             for column in range(self._n_columns - 3):
-                yield self._board[
-                      row * self._n_columns + column: (row + 4) * self._n_columns + column + 4: self._n_columns + 1
-                      ]
+                yield self._board[row * self._n_columns + column
+                                  : (row + 4) * self._n_columns + column + 4
+                                  : self._n_columns + 1]
 
         # Diagonal lines: /
         for row in range(self._n_rows - 3):
             for column in range(3, self._n_columns):
-                yield self._board[
-                      row * self._n_columns + column: (row + 4) * self._n_columns + column - 4: self._n_columns - 1
-                      ]
+                yield self._board[row * self._n_columns + column
+                                  : (row + 4) * self._n_columns + column - 4
+                                  : self._n_columns - 1]
 
 
 class StateView:
@@ -233,10 +227,17 @@ class Outcome:
         return '\n'.join([
             'Agent outcomes',
             '\n'.join([
-                ''.join([str(agent.token), ': ', str(self.agent_outcomes[agent])]) for agent in self.agent_outcomes
+                ''.join([
+                    str(agent.token),
+                    ': ',
+                    str(self.agent_outcomes[agent])
+                ]) for agent in self.agent_outcomes
             ]),
             'Action record',
-            '\n'.join([', '.join([str(element) for element in record]) for record in self.record])
+            '\n'.join([
+                ', '.join([
+                    str(element) for element in record
+                ]) for record in self.record])
         ])
 
     def append_to_record(self, token, action):

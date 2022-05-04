@@ -40,7 +40,7 @@ class CLIAgent(Agent):
                 print('Input could not be converted to an integer.')
                 continue
 
-            if column < 1 or column > state_view.board_size[1]:
+            if not (1 <= column <= state_view.board_size[1]):
                 print('Selected column lies outside the board. Columns are indexed from 1.')
                 continue
 
@@ -54,13 +54,16 @@ class CLIAgent(Agent):
     @staticmethod
     def _print_board(view):
         for row in range(view.board_size[0]):
-            print(''.join([
-                '[',
-                ','.join([
-                    ' ' if token is None else str(token)[0]
-                    for token in view.board[row * view.board_size[1]: (row + 1) * view.board_size[1]]
-                ]),
-                ']']))
+            print(
+                ''.join([
+                    '[',
+                    ','.join([
+                        ' ' if token is None else str(token)[0]
+                        for token in view.board[row * view.board_size[1] : (row + 1) * view.board_size[1]]
+                    ]),
+                    ']'
+                ])
+            )
 
 
 class RandomAgent(Agent):
@@ -71,9 +74,7 @@ class RandomAgent(Agent):
 
     def select_action(self, state_view):
         open_columns = [
-            index + 1
-            for index, token in zip(range(state_view.board_size[1]), state_view.board[:state_view.board_size[1]])
-            if token is None
+            index + 1 for index, token in enumerate(state_view.board[:state_view.board_size[1]]) if token is None
         ]
         return game.Action(game.Actions.PLACE, random.choice(open_columns))
 
