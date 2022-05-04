@@ -3,7 +3,7 @@ import enum
 import itertools
 import random
 
-from . import _agents
+from . import agents as agents_module
 
 
 class Game:
@@ -22,7 +22,7 @@ class Game:
         if len(agents) < 2:
             raise ValueError('Argument "agents" must be of at least length 2.')
         for element in agents:
-            if not isinstance(element, _agents.Agent):
+            if not isinstance(element, agents_module.Agent):
                 raise TypeError('Unsupported element type in argument "agents". Elements must be of type "Agent".')
         if not (isinstance(board_size, list) or isinstance(board_size, tuple)):
             raise TypeError('Unsupported type for argument "board_size". Argument must be of type "List" or "Tuple".')

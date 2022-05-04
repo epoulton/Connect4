@@ -1,6 +1,6 @@
 import random
 
-from . import _game
+from . import game
 
 
 class Agent:
@@ -46,7 +46,7 @@ class CLIAgent(Agent):
 
             break
 
-        return _game.Action(_game.Actions.PLACE, column)
+        return game.Action(game.Actions.PLACE, column)
 
     def notify_outcome(self, outcome):
         print(outcome.agent_outcomes[self])
@@ -75,7 +75,7 @@ class RandomAgent(Agent):
             for index, token in zip(range(state_view.board_size[1]), state_view.board[:state_view.board_size[1]])
             if token is None
         ]
-        return _game.Action(_game.Actions.PLACE, random.choice(open_columns))
+        return game.Action(game.Actions.PLACE, random.choice(open_columns))
 
     def notify_outcome(self, outcome):
         pass

@@ -1,2 +1,2 @@
-from ._agents import *
-from ._game import *
+from .agents import *
+from .game import *
